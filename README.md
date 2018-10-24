@@ -109,4 +109,83 @@ require(msg.sender == owner);
 
 元组，返回多个值，并且值与值之间的类型可以不相同;
 
-元组返回的值，不能直接赋值给数组的某个值
+元组返回的值，不能直接赋值给没开辟空间的数组某个index，可以用变量接收后再赋值给数组某个index；（如果数组`uint[] data = new uint[](5)` 这种开辟空间的没问题）
+
+## 创建代币
+- 安装`npm install -g truffle`
+    - 检测是否安装成功`truffle version`
+- 初始化，创建demo文件夹并进入`truffle init`
+- 启动开发模式 `truffle develop`
+- 编译`compile`
+- 部署`migrate`或者`migrate --reset`
+- 获取合约实例
+```
+//下面contract就是获取到的合约对象
+let contract;
+Hello.deployed().then(instance => {contract=instance})
+
+//直接输入contract变量就可以看到合约对象了
+contract
+
+//测试运行，test是合约的方法名
+contract.test()
+```
+文件如下
+```
+.
+├── build
+├── contracts
+│   ├── Hello.sol(创建代币/truffle/Hello.sol)
+│   └── Migrations.sol
+├── migrations
+│   ├── 1_initial_migration.js
+│   └── 2_deploy_hello.js(创建代币/truffle/2_deploy_hello.js)
+├── test
+├── truffle-config.js
+└── truffle.js
+```
+
+#### 代币的DEMO逻辑
+
+`Token.sol`文件内容如下
+
+```
+pragma solidity ^0.4.23;
+contract Token{
+    uint256 INITIAL_SUPPLY = 666666;
+    mapping(address=>uint256)balances;
+
+    //构造函数会使调用者有666666个token
+    function Token()public{
+        balances[msg.sender] = INITIAL_SUPPLY;
+    }
+
+    //转账到指定地址
+    function transfer(address _to,uint256 _amount)public{
+        assert(balances[msg.sender] >= _amount);//检测余额
+        balances[msg.sender]-=_amount;
+        balances[_to]+=_amount;
+    }
+
+    //查看指定地址的余额
+    function balanceOf(address _owner)public view returns(uint) {
+        return balances[_owner];
+    }
+}  
+```
+
+`2_deploy_token.js`文件如下
+```
+var Token = artifacts.require("./Token.sol");
+module.exports = function(deployer) {
+  deployer.deploy(Token);
+};
+```
+
+## truffle framework 和 web3.js框架
+- truffle安装
+- web.js api的使用
+- truffle init 创建项目，编写合约，编译合约，合约测试，部署合约，合约互动
+- truffle unbox项目安利介绍
+- truffle unbox react 项目改变，部署，web端互动
+- Voting Dapp 项目合约编写，编译，部署，web端互动
