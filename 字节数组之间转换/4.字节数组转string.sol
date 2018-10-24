@@ -61,3 +61,20 @@ contract toString{
         }
     }
 }
+
+contract betterToString{
+    // 0x6c69
+    bytes private tempString = new bytes(32);
+    function bytes32ToString(bytes32 arg) public view returns(string){
+        //固定大小 -> 动态大小
+        for(uint i=0;i<32;i++){
+            if(!(arg[i]==0x00)){
+                tempString[i]=arg[i];
+            }else{
+                tempString.length=i;
+                break;
+            }
+        }
+        return string(tempString);
+    }
+}
